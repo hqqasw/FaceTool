@@ -4,6 +4,7 @@ import cv2
 import os
 import numpy as np
 from utils import *
+import time
 
 
 class FaceNet(object):
@@ -214,7 +215,7 @@ class FaceNet(object):
             crop_size=(110, 110),
             image_size=(256, 256)):
         """
-        extract verification feature
+        extract verification feature of one face
         """
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
@@ -227,6 +228,34 @@ class FaceNet(object):
         if image_size is not None:
             image = cv2.resize(image, image_size)
         data = np.array([self._transformer.preprocess('data', image)])
+        data = data*3.2/255-1.6  # scale data
+        self._VerifyNet.blobs['data'].reshape(*data.shape)
+        self._VerifyNet.reshape()
+        out = self._VerifyNet.forward(blobs=[score_name, ], data=data)
+        return out[score_name].copy()
+
+    def extract_feature_batch(
+        self, image_list, score_name,
+        crop_size=(110, 110),
+            image_size=(256, 256)):
+        """
+        extract verification feature of faces
+        """
+        new_image_list = []
+        for image in image_list:
+            if len(image.shape) == 2:
+                image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+            if crop_size is not None:
+                center_x = image.shape[0]/2
+                center_y = image.shape[1]/2
+                w = crop_size[0]
+                h = crop_size[1]
+                image = image[center_x-w/2:center_x+w/2, center_y-h/2:center_y+h/2, :]
+            if image_size is not None:
+                image = cv2.resize(image, image_size)
+            new_image_list.append(image.copy())
+        data = np.array([self._transformer.preprocess('data', image)
+                        for image in new_image_list])
         data = data*3.2/255-1.6  # scale data
         self._VerifyNet.blobs['data'].reshape(*data.shape)
         self._VerifyNet.reshape()
@@ -248,12 +277,12 @@ class FaceNet(object):
 
     def easy_extract_features(self, image, alignments, score_name='feature'):
         face_num = len(alignments)
-        feature_list = []
+        face_img_list = []
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         for i in range(face_num):
             face_landmarks = alignments[i]
             face_img = self.align_image(image, face_landmarks)
-            feature = self.extract_feature(face_img, score_name)
-            feature_list.append(feature[0])
-        return np.array(feature_list)
+            face_img_list.append(face_img)
+        feature = self.extract_feature_batch(face_img_list, score_name)
+        return feature
