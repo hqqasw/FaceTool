@@ -7,7 +7,7 @@ To run this tool, you need to:
   * Change the CAFFE_PATH in "utils/init_path.py"
   * Download models from [Dropbox](https://www.dropbox.com/sh/zdopfhld02nuc1r/AABYc6ZMDE02MThdCWa5MBALa?dl=0) or [BaiduWangPan](http://pan.baidu.com/s/1pK8a979), and put them in "model/"
 
-Then you can run "demo.py" to see the result. If everything is right, you will see tow faces are detected and their names (Rose and Jack) are labled.
+Then you can run "demo.py" to see the result. If everything is right, you will see two faces are detected and their names (Rose and Jack) are labled.
 
 # Reference
 The face detection and alignment algorithm named MTCNN is from this paper:
