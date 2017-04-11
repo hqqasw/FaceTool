@@ -12,6 +12,7 @@ Then you can run "demo.py" to see the result. If everything is right, you will s
 # Reference
 The face detection and alignment algorithm named MTCNN is from this paper:
  * Kaipeng Zhang, Zhanpeng Zhang, Zhifeng Li, Yu Qiao , " Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks," IEEE Signal Processing Letter
+
 And we also get some code from https://github.com/DuinoDu/mtcnn, which is a python version of MTCNN.
 
 The verification algorithm is from [MMLab](http://mmlab.ie.cuhk.edu.hk/) of CUHK.
