@@ -131,7 +131,7 @@ class FaceNet(object):
         # second stage
         numbox = total_boxes.shape[0]
         if numbox > 0:
-            # construct input for RNet
+            # construct input for RNetConvolution
             tempimg = np.zeros((numbox, 24, 24, 3))  # (24, 24, 3, numbox)
             for k in range(numbox):
                 tmp = np.zeros((int(tmph[k]), int(tmpw[k]), 3))
@@ -220,7 +220,7 @@ class FaceNet(object):
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         if crop_size is not None:
-            center_x = image.shape[0]/2
+            center_x = image.shape[0]/2 + 15
             center_y = image.shape[1]/2
             w = crop_size[0]
             h = crop_size[1]
@@ -246,7 +246,7 @@ class FaceNet(object):
             if len(image.shape) == 2:
                 image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
             if crop_size is not None:
-                center_x = image.shape[0]/2
+                center_x = image.shape[0]/2 + 15
                 center_y = image.shape[1]/2
                 w = crop_size[0]
                 h = crop_size[1]
@@ -280,6 +280,7 @@ class FaceNet(object):
         face_img_list = []
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+        image = image[:, :, [2, 1, 0]]  # BGR -> RGB
         for i in range(face_num):
             face_landmarks = alignments[i]
             face_img = self.align_image(image, face_landmarks)
