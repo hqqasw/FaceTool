@@ -144,4 +144,4 @@ def generateBoundingBox(map, reg, scale, t):
 
 
 def get_cosdis(feature1, feature2):
-    return np.dot(feature1.T, feature2)/(sum(feature1**2)**0.5*sum(feature2**2)**0.5)
+    return np.dot(feature1.T, feature2)/(np.linalg.norm(feature1)*np.linalg.norm(feature2))

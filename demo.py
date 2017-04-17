@@ -12,8 +12,8 @@ if __name__ == '__main__':
     jack_img = cv2.imread('jack.jpg')
     bboxes, landmarks = facenet.detect_face(jack_img)
     jack_feature = facenet.easy_extract_features(jack_img, landmarks)
-
     image = cv2.imread('titanic.jpg')
+
     bboxes, landmarks = facenet.detect_face(image)
     feature = facenet.easy_extract_features(image, landmarks)
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     for i in range(2):
         rose_dis = get_cosdis(feature[i], rose_feature[0])
         jack_dis = get_cosdis(feature[i], jack_feature[0])
-        # print rose_dis, jack_dis
+        print rose_dis, jack_dis
         if rose_dis > jack_dis:
             name.append('Rose')
         else:

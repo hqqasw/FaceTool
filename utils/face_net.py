@@ -262,6 +262,33 @@ class FaceNet(object):
         out = self._VerifyNet.forward(blobs=[score_name, ], data=data)
         return out[score_name].copy()
 
+    def get_similarity_matrix(self, src_pts, dst_pts):
+        """
+        get a similarity matrix (totation, scale and translation)
+        """
+        num = src_pts.shape[0]
+        A = np.zeros([num*2, 4])
+        b = np.zeros([num*2])
+        for i in range(num):
+            A[2*i, 0] = src_pts[i, 0]
+            A[2*i, 1] = - src_pts[i, 1]
+            A[2*i, 2] = 1
+            A[2*i + 1, 0] = src_pts[i, 1]
+            A[2*i + 1, 1] = src_pts[i, 0]
+            A[2*i + 1, 3] = 1
+            b[2*i] = dst_pts[i, 0]
+            b[2*i + 1] = dst_pts[i, 1]
+        # c = np.linalg.pinv(A.T.dot(A)).dot(A.T).dot(b)
+        c = np.linalg.pinv(A).dot(b)
+        T = np.zeros([2, 3])
+        T[0, 0] = c[0]
+        T[0, 1] = -c[1]
+        T[0, 2] = c[2]
+        T[1, 0] = c[1]
+        T[1, 1] = c[0]
+        T[1, 2] = c[3]
+        return T
+
     def align_image(self, image, face_landmarks, crop_size=(178, 218)):
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
@@ -271,8 +298,10 @@ class FaceNet(object):
                 [(face_landmarks[4, 0]+face_landmarks[3, 0])/2,
                     (face_landmarks[4, 1]+face_landmarks[3, 1])/2]],
             np.float32)
-        matrix = cv2.getAffineTransform(src, self._mean_pose)
-        image_rotate = cv2.warpAffine(image, matrix, crop_size)
+        matrix = self.get_similarity_matrix(src, self._mean_pose)
+        image_rotate = cv2.warpAffine(
+            image, matrix, crop_size,
+            borderMode=cv2.BORDER_REPLICATE)
         return image_rotate
 
     def easy_extract_features(self, image, alignments, score_name='feature'):
@@ -280,7 +309,6 @@ class FaceNet(object):
         face_img_list = []
         if len(image.shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-        image = image[:, :, [2, 1, 0]]  # BGR -> RGB
         for i in range(face_num):
             face_landmarks = alignments[i]
             face_img = self.align_image(image, face_landmarks)
