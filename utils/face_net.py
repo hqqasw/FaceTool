@@ -1,9 +1,9 @@
-import init_path
+from . import init_path
 import caffe
 import cv2
 import os
 import numpy as np
-from utils import *
+from .utils import *
 import time
 
 
@@ -224,7 +224,8 @@ class FaceNet(object):
             center_y = image.shape[1]/2
             w = crop_size[0]
             h = crop_size[1]
-            image = image[center_x-w/2:center_x+w/2, center_y-h/2:center_y+h/2, :]
+            image = image[int(center_x-w/2):int(center_x+w/2),
+                          int(center_y-h/2):int(center_y+h/2), :]
         if image_size is not None:
             image = cv2.resize(image, image_size)
         data = np.array([self._transformer.preprocess('data', image)])
@@ -250,7 +251,8 @@ class FaceNet(object):
                 center_y = image.shape[1]/2
                 w = crop_size[0]
                 h = crop_size[1]
-                image = image[center_x-w/2:center_x+w/2, center_y-h/2:center_y+h/2, :]
+                image = image[int(center_x-w/2):int(center_x+w/2),
+                              int(center_y-h/2):int(center_y+h/2), :]
             if image_size is not None:
                 image = cv2.resize(image, image_size)
             new_image_list.append(image.copy())
